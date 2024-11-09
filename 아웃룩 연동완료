@@ -15,7 +15,7 @@ test_folder = inbox.Folders["test"]  # 특정 계정의 'test' 폴더 접근
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
 # creds 변수 정의
-creds = Credentials.from_service_account_file(r"C:\_server\Apache24\htdocs\Practice\00_python\241110_googlesheet_outlook\bold-bond-440701-n6-abcef996a3dc.json", scopes=scope) # 회사 컴퓨터 파이선 폴더 주소로 변경해야함
+creds = Credentials.from_service_account_file(r"C:\_server\Apache24\htdocs\Practice\00_python\241110_googlesheet_outlook\bold-bond-440701-n6-abcef996a3dc.json", scopes=scope)
 
 # creds를 사용하여 gspread 클라이언트 인스턴스화
 gc = gspread.authorize(creds)
@@ -31,7 +31,7 @@ def fetch_emails_by_keyword(keyword):
     unique_subjects = set()
     messages = test_folder.Items
     for message in messages:
-        if keyword in message.Subject and message.Subject not in unique_subjects:
+        if keyword in message.Body and message.Subject not in unique_subjects:
             unique_subjects.add(message.Subject)
             filtered_emails.append({
                 "Subject": message.Subject,
@@ -54,7 +54,7 @@ def update_google_sheet(emails, keyword):
         
 # 5. 메일 추출 및 업데이트 실행
 if __name__ == "__main__":
-    keyword = "자동화"
+    keyword = "정기담"
     emails = fetch_emails_by_keyword(keyword)
     if emails:
         update_google_sheet(emails, keyword)
