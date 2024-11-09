@@ -15,7 +15,7 @@ test_folder = inbox.Folders["test"]  # 특정 계정의 'test' 폴더 접근
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 
 # creds 변수 정의
-creds = Credentials.from_service_account_file(r"C:\_server\Apache24\htdocs\Practice\00_python\241110_googlesheet_outlook\bold-bond-440701-n6-abcef996a3dc.json", scopes=scope)
+creds = Credentials.from_service_account_file(r"C:\_server\Apache24\htdocs\Practice\00_python\241110_googlesheet_outlook\bold-bond-440701-n6-abcef996a3dc.json", scopes=scope) #json 파일 경로 회사 경로로 변경
 
 # creds를 사용하여 gspread 클라이언트 인스턴스화
 gc = gspread.authorize(creds)
