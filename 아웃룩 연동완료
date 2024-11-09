@@ -1,0 +1,66 @@
+import win32com.client
+import gspread
+from google.oauth2.service_account import Credentials
+
+# 1. Outlook 메일 접근 설정
+outlook = win32com.client.Dispatch("Outlook.Application").GetNamespace("MAPI")
+
+# 특정 이메일 계정 접근
+# 예: "nasimple@naver.com"이라는 메일 주소에 접근
+account = outlook.Folders["nasimple@naver.com"]
+inbox = account.Folders["받은 편지함"]
+test_folder = inbox.Folders["test"]  # 특정 계정의 'test' 폴더 접근
+
+# 2. 구글 스프레드시트 설정
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
+
+# creds 변수 정의
+creds = Credentials.from_service_account_file(r"C:\_server\Apache24\htdocs\Practice\00_python\241110_googlesheet_outlook\bold-bond-440701-n6-abcef996a3dc.json", scopes=scope) # 회사 컴퓨터 파이선 폴더 주소로 변경해야함
+
+# creds를 사용하여 gspread 클라이언트 인스턴스화
+gc = gspread.authorize(creds)
+
+# 스프레드시트 접근: URL을 통해 열기
+spreadsheet_url = "https://docs.google.com/spreadsheets/d/1-35uOGGfVF40823ts4nzO7bgY7i2Rwc6sNK0yMqyGAM/edit?gid=0#gid=0"
+spreadsheet = gc.open_by_url(spreadsheet_url)
+worksheet = spreadsheet.sheet1
+
+# 3. 특정 키워드로 메일 필터링 및 추출
+def fetch_emails_by_keyword(keyword):
+    filtered_emails = []
+    unique_subjects = set()
+    messages = test_folder.Items
+    for message in messages:
+        if keyword in message.Subject and message.Subject not in unique_subjects:
+            unique_subjects.add(message.Subject)
+            filtered_emails.append({
+                "Subject": message.Subject,
+            })
+    return filtered_emails
+
+# 4. 구글 스프레드시트에 업데이트
+def update_google_sheet(emails, keyword):
+    # 첫 번째 행에 제목 입력 (필요 시 처음에만 수행)
+    if worksheet.row_count == 1:
+        worksheet.append_row(["키워드 메일 제목"])
+
+    # 현재 스프레드시트에 이미 있는 제목 가져오기
+    existing_subjects = worksheet.col_values(2)  # B열에 있는 제목 목록
+
+    # 중복되지 않는 새로운 제목만 추가
+    rows_to_add = [[email["Subject"]] for email in emails if email["Subject"] not in existing_subjects]
+    if rows_to_add:
+        worksheet.append_rows(rows_to_add, value_input_option="USER_ENTERED", table_range="B1")
+        
+# 5. 메일 추출 및 업데이트 실행
+if __name__ == "__main__":
+    keyword = "자동화"
+    emails = fetch_emails_by_keyword(keyword)
+    if emails:
+        update_google_sheet(emails, keyword)
+        print("스프레드시트 업데이트 완료!")
+    else:
+        print("지정된 키워드에 해당하는 메일이 없습니다.")
+
+
+#11월 10일 4시10분 이메일 연동 완료
